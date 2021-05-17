@@ -2,18 +2,17 @@ import object
 import pygame
 
 class Game:
+    screen=None
     def __init__(self):
         ok,fail=pygame.init()
         print(f"Initialization passed = {ok} failed = {fail} ")
-        self.screen = pygame.display.set_mode((800,600))
+        Game.screen = pygame.display.set_mode((800,600))
         self.clock  = pygame.time.Clock()
         self.run = True
         self.objects = []
-
-    def init(self):
         self.player=object.Player()
 
-    def handl_events(self):
+    def handle_events(self):
         delay = self.clock.tick(60)
         events = pygame.event.get()
         for eve in events:
@@ -41,7 +40,7 @@ class Game:
 
     def render(self):
         self.screen.fill((0,0,0))
-        self.player.draw(self.screen)
+        self.player.draw()
         for object in self.objects:
             object.render()
         pygame.display.update()
