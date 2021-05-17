@@ -5,13 +5,20 @@ import game
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.img = pygame.Surface((100,100))
+        self.img = pygame.Surface((20,125))
         self.img.fill((255,255,255))
-        self.rect = pygame.Rect(100,100,0,0)
+        self.rect = self.img.get_rect()
+        print(self.rect)
+        self.rect.move_ip(10,10)
+        print(self.rect)
         self.vel = [0,0] 
 
     def update(self):
         self.rect.move_ip(self.vel)
+        if self.rect.y < 0 :
+            self.rect.y = 0
+        elif self.rect.y > game.Game.screen.get_rect().bottom - self.img.get_height() :
+            self.rect.y = game.Game.screen.get_rect().bottom - self.img.get_height() 
 
     def draw(self):
         game.Game.screen.blit(self.img, self.rect)
