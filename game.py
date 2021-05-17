@@ -6,7 +6,7 @@ class Game:
     def __init__(self):
         ok,fail=pygame.init()
         print(f"Initialization passed = {ok} failed = {fail} ")
-        Game.screen = pygame.display.set_mode((800,600))
+        Game.screen = pygame.display.set_mode(flags = pygame.FULLSCREEN)
         self.clock  = pygame.time.Clock()
         self.run = True
         self.objects = []
@@ -20,18 +20,12 @@ class Game:
                 self.run = False
             elif eve.type == pygame.KEYDOWN:
                 if eve.key == pygame.K_w:
-                    self.player.vel[1] = -100*delay/1000
-                elif eve.key == pygame.K_a:
-                    self.player.vel[0] = -100*delay/1000
+                    self.player.vel[1] = -300*delay/1000
                 elif eve.key == pygame.K_s:
-                    self.player.vel[1] = 100*delay/1000
-                elif eve.key == pygame.K_d:
-                    self.player.vel[0] = 100*delay/1000
+                    self.player.vel[1] = 300*delay/1000
             elif eve.type == pygame.KEYUP:
                 if eve.key == pygame.K_w or eve.key == pygame.K_s:
                     self.player.vel[1] = 0
-                elif eve.key == pygame.K_a or eve.key == pygame.K_d:
-                    self.player.vel[0] = 0
 
     def update(self):
         self.player.update()
