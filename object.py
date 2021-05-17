@@ -1,4 +1,5 @@
 import pygame
+import game
 
 
 class Player(pygame.sprite.Sprite):
@@ -12,5 +13,5 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.rect.move_ip(self.vel)
 
-    def draw(self, screen):
-        screen.blit(self.img, self.rect)
+    def draw(self):
+        game.Game.screen.blit(self.img, self.rect)
