@@ -17,8 +17,8 @@ class Player(pygame.sprite.Sprite):
         self.rect.move_ip(self.vel)
         if self.rect.y < 0 :
             self.rect.y = 0
-        elif self.rect.y > game.Game.screen.get_rect().bottom - self.img.get_height() :
-            self.rect.y = game.Game.screen.get_rect().bottom - self.img.get_height() 
+        elif self.rect.bottom > game.Game.screen.get_rect().bottom :
+            self.rect.bottom = game.Game.screen.get_rect().bottom 
 
     def draw(self):
         game.Game.screen.blit(self.img, self.rect)

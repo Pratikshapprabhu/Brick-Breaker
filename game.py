@@ -6,7 +6,7 @@ class Game:
     def __init__(self):
         ok,fail=pygame.init()
         print(f"Initialization passed = {ok} failed = {fail} ")
-        Game.screen = pygame.display.set_mode(flags = pygame.FULLSCREEN)
+        Game.screen = pygame.display.set_mode()
         self.clock  = pygame.time.Clock()
         self.run = True
         self.objects = []
