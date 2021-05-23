@@ -8,16 +8,16 @@ class Player(pygame.sprite.Sprite):
         self.img = pygame.Surface((20,125))
         self.img.fill((255,255,255))
         self.rect = self.img.get_rect()
-        self.rect.x = 0
-        self.rect.y = 0
+        self.rect.x = game.Game.border.x
+        self.rect.y = game.Game.border.y
         self.vel = [0,0] 
 
     def update(self):
         self.rect.move_ip(self.vel)
-        if self.rect.y < 0 :
-            self.rect.y = 0
-        elif self.rect.bottom > game.Game.screen.get_rect().bottom :
-            self.rect.bottom = game.Game.screen.get_rect().bottom 
+        if self.rect.y < game.Game.border.y :
+            self.rect.y = game.Game.border.y
+        elif self.rect.bottom > game.Game.border.bottom :
+            self.rect.bottom = game.Game.border.bottom 
 
     def draw(self):
         game.Game.screen.blit(self.img, self.rect)
@@ -35,17 +35,17 @@ class Ball(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.move_ip(self.vel)
-        if self.rect.x < 0 :
-            self.rect.x = 0 
+        if self.rect.x < game.Game.border.x :
+            self.rect.x = game.Game.border.x 
             game.Game.run = False
-        elif self.rect.right > game.Game.screen.get_rect().right :
-            self.rect.right = game.Game.screen.get_rect().right
+        elif self.rect.right > game.Game.border.right :
+            self.rect.right = game.Game.border.right
             self.vel[0] = -self.vel[0] 
-        if self.rect.y < 0 :
-            self.rect.y = 0
+        if self.rect.y < game.Game.border.y :
+            self.rect.y = game.Game.border.y
             self.vel[1] = -self.vel[1] 
-        elif self.rect.bottom > game.Game.screen.get_rect().bottom :
-            self.rect.bottom = game.Game.screen.get_rect().bottom 
+        elif self.rect.bottom > game.Game.border.bottom :
+            self.rect.bottom = game.Game.border.bottom 
             self.vel[1] = -self.vel[1] 
 
 
