@@ -2,11 +2,13 @@ import object
 import pygame
 
 screen_border_width = 5
-
+rows = 6
+columns = 16
 class Game:
     run = True
     border = None
     screen = None
+
     def __init__(self):
         ok,fail=pygame.init()
         print(f"Initialization passed = {ok} failed = {fail} ")
@@ -15,7 +17,17 @@ class Game:
         self.clock  = pygame.time.Clock()
         self.objects = []
         self.player = object.Player()
-        self.ball = object.Ball()
+        self.ball = object.Ball(self.player)
+        block_width = int(Game.border.width/columns)
+        block_height = int(Game.border.height/rows)
+
+        for x in range (Game.border.x,int(Game.border.right/2),block_width):
+            for y in range (Game.border.y,Game.border.height,block_height):
+                self.objects.append(object.Block(True,x,y,block_width,block_height))
+        
+        for x in range (int(Game.border.right/2),Game.border.right,block_width):
+            for y in range (Game.border.y,Game.border.height,block_height):
+                self.objects.append(object.Block(False,x,y,block_width,block_height))
 
     def handle_events(self):
         delay = self.clock.tick(60)
@@ -38,20 +50,19 @@ class Game:
            self.ball.vel[0] = -self.ball.vel[0]  
         self.ball.update()
         for object in self.objects:
-            object.update()
+            object.update(self.ball)
+
             
 
     def render(self):
         self.screen.fill((0,0,0))
+        for object in self.objects:
+            object.draw()
         self.player.draw()
         self.ball.draw()
         pygame.draw.rect(Game.screen,(0,0,255),self.border.inflate(screen_border_width/2,screen_border_width/2),width = screen_border_width)
-        for object in self.objects:
-            object.render()
         pygame.display.update()
 
     def quit(self):
         print ("Exiting now")
         pygame.quit()
-
-    

@@ -23,14 +23,13 @@ class Player(pygame.sprite.Sprite):
         game.Game.screen.blit(self.img, self.rect)
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self,pad):
         super().__init__()
         self.img = pygame.Surface((20,20))
-        self.img.fill((255,255,255))
+        self.img.fill((100,100,100))
         self.rect = self.img.get_rect()
-        self.rect.x = game.Game.screen.get_rect().width/2
-        self.rect.y = game.Game.screen.get_rect().height/2
-        self.vel = [5,5] 
+        self.rect.midleft = pad.rect.midright
+        self.vel = [3,3] 
         
 
     def update(self):
@@ -51,3 +50,27 @@ class Ball(pygame.sprite.Sprite):
 
     def draw(self):
         game.Game.screen.blit(self.img, self.rect)
+
+
+class Block(pygame.sprite.Sprite):
+    def __init__(self,state,x,y,w,h):
+        self.state = state
+        self.rect = pygame.rect.Rect(x,y,w,h)
+        
+
+    def draw(self):
+        if self.state:
+            pygame.draw.rect(game.Game.screen,(0,0,0),self.rect)
+        else:
+            pygame.draw.rect(game.Game.screen,(255,255,255),self.rect)
+            
+    def update(self,ball):
+         if not self.state and self.rect.colliderect(ball.rect):
+             self.state = True
+             ball.vel[0] = -ball.vel[0] 
+         
+
+
+
+
+
