@@ -1,13 +1,17 @@
 import object 
 import pygame
 
+screen_border_width = 5
+
 class Game:
-    screen=None
     run = True
+    border = None
+    screen = None
     def __init__(self):
         ok,fail=pygame.init()
         print(f"Initialization passed = {ok} failed = {fail} ")
         Game.screen = pygame.display.set_mode()
+        Game.border = self.screen.get_rect().inflate(-20,-20)
         self.clock  = pygame.time.Clock()
         self.objects = []
         self.player = object.Player()
@@ -41,6 +45,7 @@ class Game:
         self.screen.fill((0,0,0))
         self.player.draw()
         self.ball.draw()
+        pygame.draw.rect(Game.screen,(0,0,255),self.border.inflate(screen_border_width/2,screen_border_width/2),width = screen_border_width)
         for object in self.objects:
             object.render()
         pygame.display.update()
@@ -49,4 +54,4 @@ class Game:
         print ("Exiting now")
         pygame.quit()
 
-
+    
