@@ -2,8 +2,8 @@ import object
 import pygame
 
 screen_border_width = 5
-rows = 6
-columns = 16
+rows = 5
+columns = 20
 class Game:
     run = True
     border = None
@@ -14,6 +14,8 @@ class Game:
         print(f"Initialization passed = {ok} failed = {fail} ")
         Game.screen = pygame.display.set_mode()
         Game.border = self.screen.get_rect().inflate(-20,-20)
+        Game.border.width -= Game.border.width % columns
+        Game.border.height -= Game.border.height % rows
         self.clock  = pygame.time.Clock()
         self.objects = []
         self.player = object.Player()
@@ -21,11 +23,11 @@ class Game:
         block_width = int(Game.border.width/columns)
         block_height = int(Game.border.height/rows)
 
-        for x in range (Game.border.x,int(Game.border.right/2),block_width):
+        for x in range (Game.border.x,int(Game.border.width/2 + Game.border.x),block_width):
             for y in range (Game.border.y,Game.border.height,block_height):
                 self.objects.append(object.Block(True,x,y,block_width,block_height))
         
-        for x in range (int(Game.border.right/2),Game.border.right,block_width):
+        for x in range (int(Game.border.width/2 + Game.border.x),Game.border.right,block_width):
             for y in range (Game.border.y,Game.border.height,block_height):
                 self.objects.append(object.Block(False,x,y,block_width,block_height))
 
