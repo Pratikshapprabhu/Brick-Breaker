@@ -1,17 +1,23 @@
 import object 
 import pygame
+import socket
+import net
+import pickle
+import args
 
 screen_border_width = 5
 rows = 5
 columns = 20
 class Game:
-    run = True
     border = None
     screen = None
 
     def __init__(self):
+
+        self.run = True
         ok,fail=pygame.init()
         print(f"Initialization passed = {ok} failed = {fail} ")
+        self.sock,server = args.init()
         Game.screen = pygame.display.set_mode()
         Game.border = self.screen.get_rect().inflate(-20,-20)
         Game.border.width -= Game.border.width % columns
@@ -22,7 +28,7 @@ class Game:
         self.ball = object.Ball(self.player)
         block_width = int(Game.border.width/columns)
         block_height = int(Game.border.height/rows)
-
+         
         for x in range (Game.border.x,int(Game.border.width/2 + Game.border.x),block_width):
             for y in range (Game.border.y,Game.border.height,block_height):
                 self.objects.append(object.Block(True,x,y,block_width,block_height))
@@ -30,6 +36,10 @@ class Game:
         for x in range (int(Game.border.width/2 + Game.border.x),Game.border.right,block_width):
             for y in range (Game.border.y,Game.border.height,block_height):
                 self.objects.append(object.Block(False,x,y,block_width,block_height))
+       
+        net.init(self.sock,server)
+        print("Successfully Initiated")
+        self.quit()
 
     def handle_events(self):
         delay = self.clock.tick(60)
@@ -53,8 +63,14 @@ class Game:
         self.ball.update()
         for object in self.objects:
             object.update(self.ball)
-
             
+    def send(self):
+        x  = pickle.dumps(self.player.rect)
+        try:
+            self.sock.sendall(x)
+        except BrokenPipeError:
+            print (" Player left")
+            self.run = False
 
     def render(self):
         self.screen.fill((0,0,0))
@@ -68,3 +84,4 @@ class Game:
     def quit(self):
         print ("Exiting now")
         pygame.quit()
+        sock.close()
