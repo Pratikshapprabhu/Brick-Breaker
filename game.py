@@ -25,6 +25,7 @@ class Game:
         self.clock  = pygame.time.Clock()
         self.objects = []
         self.player = object.Player()
+        self.opponent = object.Opponent() 
         self.ball = object.Ball(self.player)
         block_width = int(Game.border.width/columns)
         block_height = int(Game.border.height/rows)
@@ -68,8 +69,9 @@ class Game:
         try:
             self.sock.sendall(x)
             r = self.sock.recv(60)
-            pickle.loads(r)
-            print (f"Opponent location {r}")
+            loc = pickle.loads(r)
+            self.opponent.rect.y = loc.y
+            print (f"Opponent location {loc}")
         except BrokenPipeError:
             print (" Player left")
             self.run = False
@@ -79,6 +81,7 @@ class Game:
         for object in self.objects:
             object.draw()
         self.player.draw()
+        self.opponent.draw()
         self.ball.draw()
         pygame.draw.rect(Game.screen,(0,0,255),self.border.inflate(screen_border_width/2,screen_border_width/2),width = screen_border_width)
         pygame.display.update()

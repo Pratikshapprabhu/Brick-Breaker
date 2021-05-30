@@ -22,6 +22,11 @@ class Player(pygame.sprite.Sprite):
     def draw(self):
         game.Game.screen.blit(self.img, self.rect)
 
+class Opponent(Player):
+    def __init__(self):
+        super().__init__()
+        self.rect.x = game.Game.border.right - self.rect.width
+
 class Ball(pygame.sprite.Sprite):
     def __init__(self,pad):
         super().__init__()
