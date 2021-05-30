@@ -39,7 +39,6 @@ class Game:
        
         net.init(self.sock,server)
         print("Successfully Initiated")
-        self.run = False
 
     def handle_events(self):
         delay = self.clock.tick(60)
@@ -68,6 +67,9 @@ class Game:
         x  = pickle.dumps(self.player.rect)
         try:
             self.sock.sendall(x)
+            r = self.sock.recv(60)
+            pickle.loads(r)
+            print (f"Opponent location {r}")
         except BrokenPipeError:
             print (" Player left")
             self.run = False
@@ -84,4 +86,4 @@ class Game:
     def quit(self):
         print ("Exiting now")
         pygame.quit()
-        sock.close()
+        self.sock.close()
