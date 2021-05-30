@@ -1,7 +1,7 @@
 import sys
 import net
 
-port = 1111
+port = 6666
 def init():
     if len(sys.argv) == 3 :
         if sys.argv[1] == "-s" :

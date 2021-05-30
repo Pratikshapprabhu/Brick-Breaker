@@ -14,8 +14,7 @@ def connect(host,port):
     sock.connect((host,port))
     return sock
 
-def init(server,soc):
-
+def init(soc,server):
     if server :
         payload = b"init"
         soc.sendall(payload)

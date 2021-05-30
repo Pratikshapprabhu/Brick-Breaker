@@ -13,7 +13,7 @@ class Game:
     screen = None
 
     def __init__(self):
-
+        socket.setdefaulttimeout(10.0)
         self.run = True
         ok,fail=pygame.init()
         print(f"Initialization passed = {ok} failed = {fail} ")
@@ -39,7 +39,7 @@ class Game:
        
         net.init(self.sock,server)
         print("Successfully Initiated")
-        self.quit()
+        self.run = False
 
     def handle_events(self):
         delay = self.clock.tick(60)
