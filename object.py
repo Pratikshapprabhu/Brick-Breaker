@@ -5,7 +5,7 @@ import game
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.img = pygame.Surface((20,125))
+        self.img = pygame.Surface((20,125)) #
         self.img.fill((255,255,255))
         self.rect = self.img.get_rect()
         self.rect.x = game.Game.border.x
@@ -26,6 +26,7 @@ class Opponent(Player):
     def __init__(self):
         super().__init__()
         self.rect.x = game.Game.border.right - self.rect.width
+        self.img.fill((0,0,0))
 
 class Ball(pygame.sprite.Sprite):
     def __init__(self,pad):

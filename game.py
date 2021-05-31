@@ -10,7 +10,7 @@ rows = 5
 columns = 20
 class Game:
     border = None
-    screen = None
+    screen = pygame.Surface((600,400))
 
     def __init__(self):
         socket.setdefaulttimeout(10.0)
@@ -18,7 +18,7 @@ class Game:
         ok,fail=pygame.init()
         print(f"Initialization passed = {ok} failed = {fail} ")
         self.sock,server = args.init()
-        Game.screen = pygame.display.set_mode()
+        self.display_surface = pygame.display.set_mode()
         Game.border = self.screen.get_rect().inflate(-20,-20)
         Game.border.width -= Game.border.width % columns
         Game.border.height -= Game.border.height % rows
@@ -84,6 +84,7 @@ class Game:
         self.opponent.draw()
         self.ball.draw()
         pygame.draw.rect(Game.screen,(0,0,255),self.border.inflate(screen_border_width/2,screen_border_width/2),width = screen_border_width)
+        pygame.transform.scale(Game.screen,self.display_surface.get_rect().size,self.display_surface)
         pygame.display.update()
 
     def quit(self):
