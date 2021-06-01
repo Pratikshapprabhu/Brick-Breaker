@@ -1,9 +1,10 @@
-import object 
+import sprite 
 import pygame
 import socket
 import net
 import pickle
 import args
+import glb
 
 screen_border_width = 5
 rows = 5
@@ -24,19 +25,19 @@ class Game:
         Game.border.height -= Game.border.height % rows
         self.clock  = pygame.time.Clock()
         self.objects = []
-        self.player = object.Player()
-        self.opponent = object.Opponent() 
-        self.ball = object.Ball(self.player)
+        self.player = sprite.Player()
+        self.opponent = sprite.Opponent() 
+        self.ball = sprite.Ball(self.player)
         block_width = int(Game.border.width/columns)
         block_height = int(Game.border.height/rows)
          
         for x in range (Game.border.x,int(Game.border.width/2 + Game.border.x),block_width):
             for y in range (Game.border.y,Game.border.height,block_height):
-                self.objects.append(object.Block(True,x,y,block_width,block_height))
+                self.objects.append(sprite.Block(True,x,y,block_width,block_height))
         
         for x in range (int(Game.border.width/2 + Game.border.x),Game.border.right,block_width):
             for y in range (Game.border.y,Game.border.height,block_height):
-                self.objects.append(object.Block(False,x,y,block_width,block_height))
+                self.objects.append(sprite.Block(False,x,y,block_width,block_height))
        
         net.init(self.sock,server)
         print("Successfully Initiated")
@@ -55,16 +56,18 @@ class Game:
             elif eve.type == pygame.KEYUP:
                 if eve.key == pygame.K_w or eve.key == pygame.K_s:
                     self.player.vel[1] = 0
+            elif eve.type == glb.TMR_EVE_1:
+                self.up_transfer()
 
     def update(self):
         self.player.update()
         if self.player.rect.colliderect(self.ball.rect):
            self.ball.vel[0] = -self.ball.vel[0]  
         self.ball.update()
-        for object in self.objects:
-            object.update(self.ball)
+        for sprite in self.objects:
+            sprite.update(self.ball)
             
-    def send(self):
+    def up_transfer(self):
         x  = pickle.dumps(self.player.rect)
         try:
             self.sock.sendall(x)
@@ -78,8 +81,8 @@ class Game:
 
     def render(self):
         self.screen.fill((0,0,0))
-        for object in self.objects:
-            object.draw()
+        for sprite in self.objects:
+            sprite.draw()
         self.player.draw()
         self.opponent.draw()
         self.ball.draw()

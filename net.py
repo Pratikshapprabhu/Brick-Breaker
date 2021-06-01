@@ -1,4 +1,6 @@
 import socket
+import pygame
+import glb
 
 def listen(host,port):
     sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
@@ -27,5 +29,5 @@ def init(soc,server):
         soc.sendall(s)
         if s != soc.recv(4):
             sys.exit()
-
+    pygame.time.set_timer(glb.TMR_EVE_1,200)
 
