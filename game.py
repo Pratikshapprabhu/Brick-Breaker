@@ -12,10 +12,10 @@ columns = 20
 class Game:
     border = None
     screen = pygame.Surface((600,400))
+    run = True
 
     def __init__(self):
         socket.setdefaulttimeout(10.0)
-        self.run = True
         ok,fail=pygame.init()
         print(f"Initialization passed = {ok} failed = {fail} ")
         self.sock,server = args.init()
@@ -47,7 +47,7 @@ class Game:
         events = pygame.event.get()
         for eve in events:
             if eve.type == pygame.QUIT:
-                self.run = False
+                Game.run = False
             elif eve.type == pygame.KEYDOWN:
                 if eve.key == pygame.K_w:
                     self.player.vel[1] = -300*delay/1000
@@ -77,7 +77,7 @@ class Game:
             print (f"Opponent location {loc}")
         except BrokenPipeError:
             print (" Player left")
-            self.run = False
+            Game.run = False
 
     def render(self):
         self.screen.fill((0,0,0))
