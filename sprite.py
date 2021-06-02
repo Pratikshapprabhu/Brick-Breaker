@@ -32,7 +32,7 @@ class Ball(pygame.sprite.Sprite):
     def __init__(self,pad):
         super().__init__()
         self.img = pygame.Surface((20,20))
-        self.img.fill((100,100,100))
+        self.img.fill((255,255,255))
         self.rect = self.img.get_rect()
         self.rect.midleft = pad.rect.midright
         self.vel = [3,3] 
@@ -70,10 +70,13 @@ class Block(pygame.sprite.Sprite):
         else:
             pygame.draw.rect(game.Game.screen,(255,255,255),self.rect)
             
-    def update(self,ball):
-         if not self.state and self.rect.colliderect(ball.rect):
-             self.state = True
-             ball.vel[0] = -ball.vel[0] 
+    def update(self,ball,player,border):
+        if not self.state and self.rect.colliderect(ball.rect):
+            self.state = True
+            ball.vel[0] = -ball.vel[0] 
+        if not self.state and (self.rect.colliderect(player.rect) or self.rect.x < border.x):
+            game.Game.run = False
+            print ("YOU LOST!!!!!!")
          
 
 
