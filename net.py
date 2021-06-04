@@ -1,6 +1,9 @@
 import socket
 import pygame
 import glb
+import sys
+
+socket.setdefaulttimeout(10.0)
 
 def listen(host,port):
     sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)

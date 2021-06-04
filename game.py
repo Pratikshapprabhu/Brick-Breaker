@@ -6,23 +6,21 @@ import pickle
 import args
 import glb
 
-screen_border_width = 5
-rows = 5
-columns = 20
+#screen = comp screen
+#field = playing screen
+#game surface = 800/450 default screen
+#border surface = field outside border
+
 class Game:
-    border = None
-    screen = pygame.Surface((600,400))
+    field = pygame.Surface((glb.field_width,glb.field_height))
     run = True
 
     def __init__(self):
-        socket.setdefaulttimeout(10.0)
         ok,fail=pygame.init()
-        print(f"Initialization passed = {ok} failed = {fail} ")
         self.sock,server = args.init()
-        self.display_surface = pygame.display.set_mode()
-        Game.border = self.screen.get_rect().inflate(-20,-20)
-        Game.border.width -= Game.border.width % columns
-        Game.border.height -= Game.border.height % rows
+        self.screen = pygame.display.set_mode()
+        self.game_surface = pygame.Surface((glb.game_screen_width,glb.game_screen_height))
+        self.border = pygame.Surface((glb.border_width,glb.border_height))
         self.clock  = pygame.time.Clock()
         self.blocks = []
         self.player = sprite.Player()
@@ -30,16 +28,17 @@ class Game:
         self.ball = sprite.Ball(self.player)
         self.oball = sprite.Ball(self.opponent)
         self.oball.img.fill ((0,0,0))
-        block_width = int(Game.border.width/columns)
-        block_height = int(Game.border.height/rows)
-         
-        for x in range (Game.border.x,int(Game.border.width/2 + Game.border.x),block_width):
-            for y in range (Game.border.y,Game.border.height,block_height):
-                self.blocks.append(sprite.Block(True,x,y,block_width,block_height))
+        self.border.fill((255,255,255))
+
+        print(f"Initialization passed = {ok} failed = {fail} ")
+
+        for x in range (int(glb.columns/2)):
+            for y in range (glb.rows):
+                self.blocks.append(sprite.Block(True, x*glb.block_width, y*glb.block_height, glb.block_width, glb.block_height))
         
-        for x in range (int(Game.border.width/2 + Game.border.x),Game.border.right,block_width):
-            for y in range (Game.border.y,Game.border.height,block_height):
-                self.blocks.append(sprite.Block(False,x,y,block_width,block_height))
+        for x in range (int(glb.columns/2), glb.columns):
+            for y in range (glb.rows):
+                self.blocks.append(sprite.Block(False, x*glb.block_width, y*glb.block_height, glb.block_width, glb.block_height))
        
         net.init(self.sock,server)
         print("Successfully Initiated")
@@ -66,8 +65,8 @@ class Game:
         if self.player.rect.colliderect(self.ball.rect):
            self.ball.vel[0] = -self.ball.vel[0]  
         self.ball.update()
-        for sprite in self.blocks:
-            sprite.update(self.ball,self.player,Game.border)
+        for block in self.blocks:
+            block.update(self.ball,self.player)
             
     def up_transfer(self):
         x  = pickle.dumps((self.player.rect,self.ball.rect))
@@ -77,7 +76,7 @@ class Game:
             paddle,ball = pickle.loads(r)
             self.opponent.rect.y = paddle.y
             self.oball.rect.y = ball.y
-            self.oball.rect.x =Game.screen.get_rect().width - ball.x - ball.width
+            self.oball.rect.x =glb.field_width - ball.x - ball.width
             for block in self.blocks : 
                 if block.state and block.rect.colliderect(self.oball.rect):
                     block.state = False
@@ -86,15 +85,17 @@ class Game:
             Game.run = False
 
     def render(self):
-        self.screen.fill((0,0,0))
-        for sprite in self.blocks:
-            sprite.draw()
+        self.game_surface.fill((100,100,100))
+        Game.field.fill((0,0,0))
+        for block in self.blocks:
+            block.draw()
         self.player.draw()
         self.opponent.draw()
         self.ball.draw()
         self.oball.draw()
-        pygame.draw.rect(Game.screen,(0,0,255),self.border.inflate(screen_border_width/2,screen_border_width/2),width = screen_border_width)
-        pygame.transform.scale(Game.screen,self.display_surface.get_rect().size,self.display_surface)
+        self.game_surface.blit(self.border, pygame.rect.Rect(glb.border_x, glb.border_y,glb.border_width,glb.border_height))
+        self.game_surface.blit(self.field, pygame.rect.Rect(glb.field_x, glb.field_y,glb.field_width, glb.field_height))
+        pygame.transform.scale(self.game_surface, self.screen.get_rect().size, self.screen)
         pygame.display.update()
 
     def quit(self):
