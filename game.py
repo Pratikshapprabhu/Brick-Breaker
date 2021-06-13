@@ -1,6 +1,5 @@
 import sprite 
 import pygame
-import socket
 import net
 import pickle
 import args
