@@ -11,13 +11,13 @@ def listen(host):
     sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
     sock.bind((host,glb.port))
     try:
-        data,(rhost,_) = sock.recvfrom(paclen)
-        sock.sendto(data,(rhost,glb.port))
-        data2,(r2host,_) = sock.recvfrom(paclen)
-        if rhost == r2host and data == data2:
-            return (sock,rhost)
+        data,addr_info = sock.recvfrom(paclen)
+        sock.sendto(data,(addr_info[0],glb.port))
+        data2,addr_info2 = sock.recvfrom(paclen)
+        if addr_info == addr_info2 and data == data2:
+            return (sock,addr_info[0])
         else:
-            sock.sendto(glb.connection_close,(rhost,glb.port))
+            sock.sendto(glb.connection_close,(addr_info[0],glb.port))
     except socket.timeout:
         print("Socket Timeout")
     finally:
@@ -31,8 +31,8 @@ def connect(host,target):
     sock.bind((host,glb.port))
     try:
         sock.sendto(data,(target,glb.port))
-        sdata,(shost,_) = sock.recvfrom(paclen)
-        if sdata == data and shost == target:
+        sdata,saddr_info = sock.recvfrom(paclen)
+        if sdata == data and saddr_info[0] == target:
             sock.sendto(data,(target,glb.port))
             return sock
     except socket.timeout:
