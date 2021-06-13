@@ -34,7 +34,7 @@ def connect(host,target):
         sdata,saddr_info = sock.recvfrom(paclen)
         if sdata == data and saddr_info[0] == target:
             sock.sendto(data,(target,glb.port))
-            return sock
+            return (sock,target)
         else:
             raise socket.timeout
     except socket.timeout:
@@ -43,18 +43,4 @@ def connect(host,target):
         pygame.quit()
         sys.exit()
 
-def game_init(soc,server):
-    if server :
-        payload = b"init"
-        soc.sendall(payload)
-        if payload != soc.recv(4):
-            sys.exit()
-        else :
-            soc.sendall(payload)
-    else :
-        s = soc.recv(4)
-        soc.sendall(s)
-        if s != soc.recv(4):
-            sys.exit()
-    pygame.time.set_timer(glb.TMR_EVE_1,200)
 

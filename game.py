@@ -16,7 +16,7 @@ class Game:
 
     def __init__(self):
         ok,fail=pygame.init()
-        self.sock,server = args.init()
+        self.sock,self.remote = args.init()
         self.screen = pygame.display.set_mode()
         self.game_surface = pygame.Surface((glb.game_screen_width,glb.game_screen_height))
         self.border = pygame.Surface((glb.border_width,glb.border_height))
@@ -39,7 +39,7 @@ class Game:
             for y in range (glb.rows):
                 self.blocks.append(sprite.Block(False, x*glb.block_width, y*glb.block_height, glb.block_width, glb.block_height))
        
-        net.game_init(self.sock,server)
+        pygame.time.set_timer(glb.TMR_EVE_1,200)
         print("Successfully Initiated")
 
     def handle_events(self):
@@ -70,7 +70,7 @@ class Game:
     def up_transfer(self):
         x  = pickle.dumps((self.player.rect,self.ball.rect))
         try:
-            self.sock.sendall(x)
+            self.sock.sendto(x,(self.remote,glb.port))
             r = self.sock.recv(120)
             paddle,ball = pickle.loads(r)
             self.opponent.rect.y = paddle.y

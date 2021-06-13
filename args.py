@@ -1,15 +1,12 @@
 import sys
 import net
-import glb
 
 def init():
-    if len(sys.argv) == 3 :
+    if len(sys.argv) > 2 :
         if sys.argv[1] == "-s" :
-            s = net.listen(sys.argv[2],glb.port)
-            return (s,True)
+            return net.listen(sys.argv[2])
         elif sys.argv[1] == "-c" :
-            s = net.connect(sys.argv[2],glb.port)
-            return (s,False)
+            return net.connect(sys.argv[2],sys.argv[3]) 
     print (f"Usage : {sys.argv[0]} (-s | -c) ipaddress")
     sys.exit()
 
