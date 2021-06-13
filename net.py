@@ -18,9 +18,9 @@ def listen(host):
             return (sock,addr_info[0])
         else:
             sock.sendto(glb.connection_close,(addr_info[0],glb.port))
+            raise socket.timeout
     except socket.timeout:
         print("Socket Timeout")
-    finally:
         sock.close()
         pygame.quit()
         sys.exit()
@@ -35,9 +35,10 @@ def connect(host,target):
         if sdata == data and saddr_info[0] == target:
             sock.sendto(data,(target,glb.port))
             return sock
+        else:
+            raise socket.timeout
     except socket.timeout:
-        print("Socket timeout")
-    finally:
+        print("Socket error")
         sock.close()
         pygame.quit()
         sys.exit()
