@@ -39,7 +39,7 @@ class Game:
             for y in range (glb.rows):
                 self.blocks.append(sprite.Block(False, x*glb.block_width, y*glb.block_height, glb.block_width, glb.block_height))
        
-        net.init(self.sock,server)
+        net.game_init(self.sock,server)
         print("Successfully Initiated")
 
     def handle_events(self):

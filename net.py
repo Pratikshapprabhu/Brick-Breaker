@@ -10,13 +10,17 @@ paclen = 10
 def listen(host):
     sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
     sock.bind((host,glb.port))
-    data,(rhost,_) = sock.recvfrom(paclen)
-    sock.sendto(data,(rhost,glb.port))
-    data2,(r2host,_) = sock.recvfrom(paclen)
-    if rhost == r2host and data == data2:
-        return (sock,rhost)
-    else:
-        sock.sendto(glb.connection_close,(rhost,glb.port))
+    try:
+        data,(rhost,_) = sock.recvfrom(paclen)
+        sock.sendto(data,(rhost,glb.port))
+        data2,(r2host,_) = sock.recvfrom(paclen)
+        if rhost == r2host and data == data2:
+            return (sock,rhost)
+        else:
+            sock.sendto(glb.connection_close,(rhost,glb.port))
+    except socket.timeout:
+        print("Socket Timeout")
+    finally:
         sock.close()
         pygame.quit()
         sys.exit()
@@ -25,12 +29,15 @@ def connect(host,target):
     data =os.urandom(paclen)
     sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
     sock.bind((host,glb.port))
-    sock.sendto(data,(target,glb.port))
-    sdata,(shost,_) = sock.recvfrom(paclen)
-    if sdata == data and shost == target:
+    try:
         sock.sendto(data,(target,glb.port))
-        return sock
-    else :
+        sdata,(shost,_) = sock.recvfrom(paclen)
+        if sdata == data and shost == target:
+            sock.sendto(data,(target,glb.port))
+            return sock
+    except socket.timeout:
+        print("Socket timeout")
+    finally:
         sock.close()
         pygame.quit()
         sys.exit()
