@@ -80,24 +80,27 @@ class Game:
     def receive(self):
         while Game.run:
             try:
-                data = self.sock.recv(500)
+                packet = self.sock.recv(500)
             except socket.timeout:
                 print("Player left")
                 Game.run = False
                 continue
-            if data[0] == net.PackType.data:
-                self.handle_data(data[1:])
-            elif data[0] == net.PackType.close:
+            ptype = bytes(packet[:1])
+            data = packet[1:]
+            if ptype == net.PackType.data:
+                self.handle_data(data)
+            elif ptype == net.PackType.close:
                 Game.run = False
 
     def handle_data(self,data):
-            paddle,ball = pickle.loads(data)
-            self.opponent.rect.y = paddle.y
-            self.oball.rect.y = ball.y
-            self.oball.rect.x = glb.field_width - ball.x - ball.width
-            for block in self.blocks:
-                if block.state and block.rect.colliderect(self.oball.rect):
-                    block.state = False
+        print("Handle data")
+        paddle,ball = pickle.loads(data)
+        self.opponent.rect.y = paddle.y
+        self.oball.rect.y = ball.y
+        self.oball.rect.x = glb.field_width - ball.x - ball.width
+        for block in self.blocks:
+            if block.state and block.rect.colliderect(self.oball.rect):
+                block.state = False
 
     def render(self):
         self.game_surface.fill((100,100,100))
