@@ -2,7 +2,7 @@ import pygame
 
 TMR_EVE_1 = pygame.USEREVENT + 1
 
-port = 7777
+port = 8888
 rows = 5
 columns = 30
 game_screen_width = 800
