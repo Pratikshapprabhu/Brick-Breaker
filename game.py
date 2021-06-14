@@ -1,10 +1,11 @@
+import socket
 import sprite 
 import pygame
-import socket
 import net
 import pickle
 import args
 import glb
+import threading
 
 #screen = comp screen
 #field = playing screen
@@ -17,7 +18,7 @@ class Game:
 
     def __init__(self):
         ok,fail=pygame.init()
-        self.sock,server = args.init()
+        self.sock,self.remote = args.init()
         self.screen = pygame.display.set_mode()
         self.game_surface = pygame.Surface((glb.game_screen_width,glb.game_screen_height))
         self.border = pygame.Surface((glb.border_width,glb.border_height))
@@ -29,7 +30,10 @@ class Game:
         self.oball = sprite.Ball(self.opponent)
         self.oball.img.fill ((0,0,0))
         self.border.fill((255,255,255))
-
+        self.frame_counter = 10
+        self.rthread = threading.Thread(target = self.receive)
+        
+        self.rthread.start()
         print(f"Initialization passed = {ok} failed = {fail} ")
 
         for x in range (int(glb.columns/2)):
@@ -39,8 +43,6 @@ class Game:
         for x in range (int(glb.columns/2), glb.columns):
             for y in range (glb.rows):
                 self.blocks.append(sprite.Block(False, x*glb.block_width, y*glb.block_height, glb.block_width, glb.block_height))
-       
-        net.init(self.sock,server)
         print("Successfully Initiated")
 
     def handle_events(self):
@@ -57,8 +59,6 @@ class Game:
             elif eve.type == pygame.KEYUP:
                 if eve.key == pygame.K_w or eve.key == pygame.K_s:
                     self.player.vel[1] = 0
-            elif eve.type == glb.TMR_EVE_1:
-                self.up_transfer()
 
     def update(self):
         self.player.update()
@@ -68,21 +68,39 @@ class Game:
         for block in self.blocks:
             block.update(self.ball,self.player)
             
-    def up_transfer(self):
-        x  = pickle.dumps((self.player.rect,self.ball.rect))
+    def transmit_data(self):
+        data = net.PackType.data
+        data  += pickle.dumps((self.player.rect,self.ball.rect))
         try:
-            self.sock.sendall(x)
-            r = self.sock.recv(120)
-            paddle,ball = pickle.loads(r)
-            self.opponent.rect.y = paddle.y
-            self.oball.rect.y = ball.y
-            self.oball.rect.x =glb.field_width - ball.x - ball.width
-            for block in self.blocks : 
-                if block.state and block.rect.colliderect(self.oball.rect):
-                    block.state = False
+            self.sock.sendto(data,(self.remote,glb.port))
         except (BrokenPipeError , EOFError):
             print (" Player left")
             Game.run = False
+
+    def receive(self):
+        while Game.run:
+            try:
+                packet = self.sock.recv(500)
+            except socket.timeout:
+                print("Player left")
+                Game.run = False
+                continue
+            ptype = bytes(packet[:1])
+            data = packet[1:]
+            if ptype == net.PackType.data:
+                self.handle_data(data)
+            elif ptype == net.PackType.close:
+                Game.run = False
+
+    def handle_data(self,data):
+        print("Handle data")
+        paddle,ball = pickle.loads(data)
+        self.opponent.rect.y = paddle.y
+        self.oball.rect.y = ball.y
+        self.oball.rect.x = glb.field_width - ball.x - ball.width
+        for block in self.blocks:
+            if block.state and block.rect.colliderect(self.oball.rect):
+                block.state = False
 
     def render(self):
         self.game_surface.fill((100,100,100))
@@ -100,5 +118,7 @@ class Game:
 
     def quit(self):
         print ("Exiting now")
+        self.sock.sendto(net.PackType.close,(self.remote,glb.port))
         pygame.quit()
         self.sock.close()
+        self.rthread.join()
