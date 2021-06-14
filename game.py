@@ -46,9 +46,6 @@ class Game:
         print("Successfully Initiated")
 
     def handle_events(self):
-        self.frame_counter -=1
-        if self.frame_counter == 0:
-            self.transmit_data()
         delay = self.clock.tick(60)
         events = pygame.event.get()
         for eve in events:
@@ -72,9 +69,10 @@ class Game:
             block.update(self.ball,self.player)
             
     def transmit_data(self):
-        x  = pickle.dumps((self.player.rect,self.ball.rect))
+        data = net.PackType.data
+        data  += pickle.dumps((self.player.rect,self.ball.rect))
         try:
-            self.sock.sendto(x,(self.remote,glb.port))
+            self.sock.sendto(data,(self.remote,glb.port))
         except (BrokenPipeError , EOFError):
             print (" Player left")
             Game.run = False
@@ -87,6 +85,12 @@ class Game:
                 print("Player left")
                 Game.run = False
                 continue
+            if data[0] == net.PackType.data:
+                self.handle_data(data[1:])
+            elif data[0] == net.PackType.close:
+                Game.run = False
+
+    def handle_data(self,data):
             paddle,ball = pickle.loads(data)
             self.opponent.rect.y = paddle.y
             self.oball.rect.y = ball.y
@@ -111,6 +115,7 @@ class Game:
 
     def quit(self):
         print ("Exiting now")
+        self.sock.sendto(net.PackType.close,(self.remote,glb.port))
         pygame.quit()
         self.sock.close()
         self.rthread.join()

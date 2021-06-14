@@ -1,7 +1,3 @@
-import pygame
-
-TMR_EVE_1 = pygame.USEREVENT + 1
-
 port = 8888
 rows = 5
 columns = 30
@@ -24,4 +20,4 @@ ball_x = 180
 ball_y = 190
 block_width = field_width/columns
 block_height = field_height/rows
-connection_close = b"\xff"*10
+

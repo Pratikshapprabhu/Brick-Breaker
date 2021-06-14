@@ -6,6 +6,10 @@ import os
 
 socket.setdefaulttimeout(10.0)
 paclen = 10
+class PackType:
+    close = b"\xff"
+    syn = b"\x00"
+    data = b"\x01"
 
 def listen(host):
     sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
@@ -17,7 +21,7 @@ def listen(host):
         if addr_info == addr_info2 and data == data2:
             return (sock,addr_info[0])
         else:
-            sock.sendto(glb.connection_close,(addr_info[0],glb.port))
+            sock.sendto(PackType.close,(addr_info[0],glb.port))
             raise socket.timeout
     except socket.timeout:
         print("Socket Timeout")
