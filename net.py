@@ -10,6 +10,7 @@ class PackType:
     close = b"\xff"
     syn = b"\x00"
     data = b"\x01"
+    block = b"\x02"
 
 def listen(host):
     sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)

@@ -61,13 +61,28 @@ class Game:
                     self.player.vel[1] = 0
 
     def update(self):
+        state_change = False
         self.player.update()
         if self.player.rect.colliderect(self.ball.rect):
            self.ball.vel[0] = -self.ball.vel[0]  
         self.ball.update()
         for block in self.blocks:
-            block.update(self.ball,self.player)
-            
+            state_change |= block.update(self.ball,self.player)
+        if state_change:
+            self.send_bdata()
+
+    def send_bdata(self):
+        block_array = [True]*len(self.blocks)
+        for index,block in enumerate(self.blocks):
+            block_array[index] = block.state
+        block_dump = net.PackType.block
+        block_dump += pickle.dumps(block_array)
+        try:
+            self.sock.sendto(block_dump,(self.remote,glb.port))
+        except (BrokenPipeError , EOFError):
+            print (" Player left")
+            Game.run = False
+
     def transmit_data(self):
         data = net.PackType.data
         data  += pickle.dumps((self.player.rect,self.ball.rect))
@@ -89,18 +104,22 @@ class Game:
             data = packet[1:]
             if ptype == net.PackType.data:
                 self.handle_data(data)
+            elif ptype == net.PackType.block:
+                self.handle_block(data)
             elif ptype == net.PackType.close:
                 Game.run = False
 
+    def handle_block(self,data):
+        block_array = pickle.loads(data)
+        for index, state in enumerate(block_array):
+            self.blocks[index].state = not state
+
+
     def handle_data(self,data):
-        print("Handle data")
         paddle,ball = pickle.loads(data)
         self.opponent.rect.y = paddle.y
         self.oball.rect.y = ball.y
         self.oball.rect.x = glb.field_width - ball.x - ball.width
-        for block in self.blocks:
-            if block.state and block.rect.colliderect(self.oball.rect):
-                block.state = False
 
     def render(self):
         self.game_surface.fill((100,100,100))
