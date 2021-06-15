@@ -75,6 +75,7 @@ class Block(pygame.sprite.Sprite):
         if not self.state and (self.rect.colliderect(player.rect) or self.rect.x <= 0):
             game.Game.run = False
             print ("YOU LOST!!!!!!")
+            print (self.state)
         return state_change
          
 

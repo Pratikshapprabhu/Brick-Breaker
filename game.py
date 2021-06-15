@@ -112,8 +112,11 @@ class Game:
     def handle_block(self,data):
         block_array = pickle.loads(data)
         for index, state in enumerate(block_array):
+            row = index % glb.rows
+            column = index // glb.rows
+            column = glb.columns - column - 1
+            index = column * glb.rows + row 
             self.blocks[index].state = not state
-
 
     def handle_data(self,data):
         paddle,ball = pickle.loads(data)
