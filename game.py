@@ -17,6 +17,7 @@ class Game:
     run = True
 
     def __init__(self):
+        self.frame_delay = 0
         ok,fail=pygame.init()
         self.sock,self.remote = args.init()
         self.screen = pygame.display.set_mode()
@@ -26,8 +27,8 @@ class Game:
         self.blocks = []
         self.player = sprite.Player()
         self.opponent = sprite.Opponent() 
-        self.ball = sprite.Ball(self.player)
-        self.oball = sprite.Ball(self.opponent)
+        self.ball = sprite.Ball()
+        self.oball = sprite.Ball()
         self.oball.img.fill ((0,0,0))
         self.border.fill((255,255,255))
         self.frame_counter = 10
@@ -46,16 +47,16 @@ class Game:
         print("Successfully Initiated")
 
     def handle_events(self):
-        delay = self.clock.tick(60)
+        self.frame_delay = self.clock.tick(60)
         events = pygame.event.get()
         for eve in events:
             if eve.type == pygame.QUIT:
                 Game.run = False
             elif eve.type == pygame.KEYDOWN:
                 if eve.key == pygame.K_w:
-                    self.player.vel[1] = -300*delay/1000
+                    self.player.vel[1] = -300*self.frame_delay/1000
                 elif eve.key == pygame.K_s:
-                    self.player.vel[1] = 300*delay/1000
+                    self.player.vel[1] = 300*self.frame_delay/1000
             elif eve.type == pygame.KEYUP:
                 if eve.key == pygame.K_w or eve.key == pygame.K_s:
                     self.player.vel[1] = 0
@@ -65,7 +66,7 @@ class Game:
         self.player.update()
         if self.player.rect.colliderect(self.ball.rect):
            self.ball.vel[0] = -self.ball.vel[0]  
-        self.ball.update()
+        self.ball.update(self.frame_delay)
         for block in self.blocks:
             state_change |= block.update(self.ball,self.player)
         if state_change:
@@ -85,7 +86,7 @@ class Game:
 
     def transmit_data(self):
         data = net.PackType.data
-        data  += pickle.dumps((self.player.rect,self.ball.rect))
+        data += pickle.dumps((self.player.rect,self.ball.rect))
         try:
             self.sock.sendto(data,(self.remote,glb.port))
         except (BrokenPipeError , EOFError):
