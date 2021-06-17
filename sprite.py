@@ -33,7 +33,7 @@ class Ball(pygame.sprite.Sprite):
         super().__init__()
         self.x_direction = 1
         self.y_direction = 1
-        self.y_vel = random.randint(int(glb.ball_velocity*30/100),int(glb.yvel_max/100))
+        self.y_vel = random.randint(int(glb.ball_velocity*30/100),int(glb.yvel_max))
         self.img = pygame.Surface((2*glb.ball_radius,2*glb.ball_radius))
         self.img.fill((255,255,255))
         self.rect = self.img.get_rect(x=glb.ball_x,y=glb.ball_y)

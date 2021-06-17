@@ -20,6 +20,6 @@ ball_x = 180
 ball_y = 190
 block_width = field_width/columns
 block_height = field_height/rows
-ball_velocity = 200 
-yvel_max = int(ball_velocity * 20 /100)
+ball_velocity = 300 
+yvel_max = int(ball_velocity * 70 /100)
 
