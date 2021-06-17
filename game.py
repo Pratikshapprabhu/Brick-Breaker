@@ -65,7 +65,7 @@ class Game:
         state_change = False
         self.player.update()
         if self.player.rect.colliderect(self.ball.rect):
-           self.ball.vel[0] = -self.ball.vel[0]  
+           self.ball.x_direction = -self.ball.x_direction  
         self.ball.update(self.frame_delay)
         for block in self.blocks:
             state_change |= block.update(self.ball,self.player)

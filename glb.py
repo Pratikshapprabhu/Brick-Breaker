@@ -20,5 +20,5 @@ ball_x = 180
 ball_y = 190
 block_width = field_width/columns
 block_height = field_height/rows
-ball_velocity = 50 
+ball_velocity = 200 
 
