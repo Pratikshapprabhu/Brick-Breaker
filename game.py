@@ -17,6 +17,7 @@ class Game:
     run = True
 
     def __init__(self):
+        self.frame_delay = 0
         ok,fail=pygame.init()
         self.sock,self.remote = args.init()
         self.screen = pygame.display.set_mode()
@@ -26,8 +27,8 @@ class Game:
         self.blocks = []
         self.player = sprite.Player()
         self.opponent = sprite.Opponent() 
-        self.ball = sprite.Ball(self.player)
-        self.oball = sprite.Ball(self.opponent)
+        self.ball = sprite.Ball()
+        self.oball = sprite.Ball()
         self.oball.img.fill ((0,0,0))
         self.border.fill((255,255,255))
         self.frame_counter = 10
@@ -46,16 +47,16 @@ class Game:
         print("Successfully Initiated")
 
     def handle_events(self):
-        delay = self.clock.tick(60)
+        self.frame_delay = self.clock.tick(60)
         events = pygame.event.get()
         for eve in events:
             if eve.type == pygame.QUIT:
                 Game.run = False
             elif eve.type == pygame.KEYDOWN:
                 if eve.key == pygame.K_w:
-                    self.player.vel[1] = -300*delay/1000
+                    self.player.vel[1] = -300*self.frame_delay/1000
                 elif eve.key == pygame.K_s:
-                    self.player.vel[1] = 300*delay/1000
+                    self.player.vel[1] = 300*self.frame_delay/1000
             elif eve.type == pygame.KEYUP:
                 if eve.key == pygame.K_w or eve.key == pygame.K_s:
                     self.player.vel[1] = 0
@@ -63,14 +64,49 @@ class Game:
     def update(self):
         self.player.update()
         if self.player.rect.colliderect(self.ball.rect):
-           self.ball.vel[0] = -self.ball.vel[0]  
-        self.ball.update()
+           self.ball.x_direction = -self.ball.x_direction   
+           angle = (self.ball.rect.center[1] - self.player.rect.center[1]) / self.player.rect.height
+           try:
+               self.ball.y_direction = int(angle / abs(angle))
+           except ZeroDivisionError:
+               pass
+           self.ball.y_vel = int(abs(angle) * glb.yvel_max * 2)
+        self.ball.update(self.frame_delay)
+        area = 0 
+        finalrect = None
+        # Block with higher area of intersection is considerd
         for block in self.blocks:
-            block.update(self.ball,self.player)
-            
+            if block.update(self.ball,self.player):
+                crect = block.rect.clip(self.ball)
+                carea = crect.width * crect.height
+                if carea > area:
+                    finalrect = crect
+                    area =carea
+        if finalrect:
+            if finalrect.height > finalrect.height:
+                self.ball.y_direction = -self.ball.y_direction
+            elif finalrect.width < finalrect.height:
+                self.ball.x_direction = -self.ball.x_direction
+            else :
+                self.ball.y_direction = -self.ball.y_direction
+                self.ball.x_direction = -self.ball.x_direction
+            self.send_bdata()
+
+    def send_bdata(self):
+        block_array = [True]*len(self.blocks)
+        for index,block in enumerate(self.blocks):
+            block_array[index] = block.state
+        block_dump = net.PackType.block
+        block_dump += pickle.dumps(block_array)
+        try:
+            self.sock.sendto(block_dump,(self.remote,glb.port))
+        except (BrokenPipeError , EOFError):
+            print (" Player left")
+            Game.run = False
+
     def transmit_data(self):
         data = net.PackType.data
-        data  += pickle.dumps((self.player.rect,self.ball.rect))
+        data += pickle.dumps((self.player.rect,self.ball.rect))
         try:
             self.sock.sendto(data,(self.remote,glb.port))
         except (BrokenPipeError , EOFError):
@@ -89,18 +125,25 @@ class Game:
             data = packet[1:]
             if ptype == net.PackType.data:
                 self.handle_data(data)
+            elif ptype == net.PackType.block:
+                self.handle_block(data)
             elif ptype == net.PackType.close:
                 Game.run = False
 
+    def handle_block(self,data):
+        block_array = pickle.loads(data)
+        for index, state in enumerate(block_array):
+            row = index % glb.rows
+            column = index // glb.rows
+            column = glb.columns - column - 1
+            index = column * glb.rows + row 
+            self.blocks[index].state = not state
+
     def handle_data(self,data):
-        print("Handle data")
         paddle,ball = pickle.loads(data)
         self.opponent.rect.y = paddle.y
         self.oball.rect.y = ball.y
         self.oball.rect.x = glb.field_width - ball.x - ball.width
-        for block in self.blocks:
-            if block.state and block.rect.colliderect(self.oball.rect):
-                block.state = False
 
     def render(self):
         self.game_surface.fill((100,100,100))

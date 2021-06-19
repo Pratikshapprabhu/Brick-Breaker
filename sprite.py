@@ -1,6 +1,8 @@
 import pygame
 import game
 import glb
+import random
+import math
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -27,27 +29,36 @@ class Opponent(Player):
         self.img.fill((0,0,0))
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self,pad):
+    def __init__(self):
         super().__init__()
+        self.x_direction = 1
+        self.y_direction = 1
+        self.y_vel = random.randint(int(glb.ball_velocity*30/100),int(glb.yvel_max))
         self.img = pygame.Surface((2*glb.ball_radius,2*glb.ball_radius))
         self.img.fill((255,255,255))
         self.rect = self.img.get_rect(x=glb.ball_x,y=glb.ball_y)
-        self.vel = [3,3] 
+    @property
+    def x_vel(self):
+        return int(math.sqrt(glb.ball_velocity ** 2 - self.y_vel ** 2) * self.x_direction)
+    @x_vel.setter
+    def x_vel(self,x):
+        self.y_vel = int(math.sqrt(glb.ball_velocity ** 2 - x ** 2))
+        
 
-    def update(self):
-        self.rect.move_ip(self.vel[0],self.vel[1])
+    def update(self,delay):
+        self.rect.move_ip(self.x_vel*delay/1000,self.y_vel*self.y_direction*delay/1000)
         if self.rect.x < 0 :
             self.rect.x = 0 
             game.Game.run = False
         elif self.rect.right > glb.field_width :
             self.rect.right = glb.field_width
-            self.vel[0] = -self.vel[0] 
+            self.x_direction = -self.x_direction 
         if self.rect.y < 0 :
             self.rect.y = 0
-            self.vel[1] = -self.vel[1] 
+            self.y_direction = -self.y_direction
         elif self.rect.bottom > glb.field_height :
             self.rect.bottom = glb.field_height
-            self.vel[1] = -self.vel[1] 
+            self.y_direction = -self.y_direction
 
 
     def draw(self):
@@ -67,12 +78,15 @@ class Block(pygame.sprite.Sprite):
             pygame.draw.rect(game.Game.field,(255,255,255),self.rect)
             
     def update(self,ball,player):
+        state_change = False
         if not self.state and self.rect.colliderect(ball.rect):
             self.state = True
-            ball.vel[0] = -ball.vel[0] 
+            state_change = True
         if not self.state and (self.rect.colliderect(player.rect) or self.rect.x <= 0):
             game.Game.run = False
             print ("YOU LOST!!!!!!")
+            print (self.state)
+        return state_change
          
 
 
