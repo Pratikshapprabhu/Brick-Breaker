@@ -76,6 +76,7 @@ class Game:
         for block in self.blocks:
             state_change |= block.update(self.ball,self.player)
         if state_change:
+            self.ball.x_direction = -self.ball.x_direction
             self.send_bdata()
 
     def send_bdata(self):
