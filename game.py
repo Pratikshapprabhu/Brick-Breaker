@@ -62,7 +62,6 @@ class Game:
                     self.player.vel[1] = 0
 
     def update(self):
-        state_change = False
         self.player.update()
         if self.player.rect.colliderect(self.ball.rect):
            self.ball.x_direction = -self.ball.x_direction   
@@ -73,10 +72,24 @@ class Game:
                pass
            self.ball.y_vel = int(abs(angle) * glb.yvel_max * 2)
         self.ball.update(self.frame_delay)
+        area = 0 
+        finalrect = None
+        # Block with higher area of intersection is considerd
         for block in self.blocks:
-            state_change |= block.update(self.ball,self.player)
-        if state_change:
-            self.ball.x_direction = -self.ball.x_direction
+            if block.update(self.ball,self.player):
+                crect = block.rect.clip(self.ball)
+                carea = crect.width * crect.height
+                if carea > area:
+                    finalrect = crect
+                    area =carea
+        if finalrect:
+            if finalrect.height > finalrect.height:
+                self.ball.y_direction = -self.ball.y_direction
+            elif finalrect.width < finalrect.height:
+                self.ball.x_direction = -self.ball.x_direction
+            else :
+                self.ball.y_direction = -self.ball.y_direction
+                self.ball.x_direction = -self.ball.x_direction
             self.send_bdata()
 
     def send_bdata(self):
