@@ -5,7 +5,6 @@ import sys
 import os
 import netifaces
 
-socket.setdefaulttimeout(10.0)                              #set socket timeout = 10sec
 paclen = 10                                                  #communication packet length = 10
 host = netifaces.ifaddresses('wlan0')[netifaces.AF_INET6][0]['addr']
 class PackType:
@@ -23,6 +22,7 @@ def listen():                                           #function to wait for co
         sock.sendto(data,(addr_info[0],glb.port))
         data2,addr_info2 = sock.recvfrom(paclen)
         if addr_info == addr_info2 and data == data2:
+            socket.setdefaulttimeout(2.0)                              #set socket timeout = 10sec
             return (sock,addr_info[0])
         else:
             sock.sendto(PackType.close,(addr_info[0],glb.port)) #if connection fails send close packet and end communication and close socket

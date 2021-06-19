@@ -35,7 +35,8 @@ class Game:
         self.rthread = threading.Thread(target = self.receive)
         
         self.rthread.start()
-        print(f"Initialization passed = {ok} failed = {fail} ")
+        if fail:
+            print(f"Initialization passed = {ok} failed = {fail} ")
 
         for x in range (int(glb.columns/2)):
             for y in range (glb.rows):
@@ -44,7 +45,6 @@ class Game:
         for x in range (int(glb.columns/2), glb.columns):
             for y in range (glb.rows):
                 self.blocks.append(sprite.Block(False, x*glb.block_width, y*glb.block_height, glb.block_width, glb.block_height))
-        print("Successfully Initiated")
 
     def handle_events(self):
         self.frame_delay = self.clock.tick(60)
