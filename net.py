@@ -12,6 +12,7 @@ class PackType:
     syn = b"\x00"                                           #ack bit = 00
     data = b"\x01"                                          #data starts with 01
     block = b"\x02"                                         #block data starts with 02
+    lost = b"\x03"
     close = b"\xff"                                         #communication ends with ff 
 
 def listen():                                           #function to wait for conecting opponent

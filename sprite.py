@@ -50,6 +50,7 @@ class Ball(pygame.sprite.Sprite):
         if self.rect.x < 0 :
             self.rect.x = 0 
             game.Game.run = False
+            game.Game.lost = True
         elif self.rect.right > glb.field_width :
             self.rect.right = glb.field_width
             self.x_direction = -self.x_direction 
@@ -84,7 +85,7 @@ class Block(pygame.sprite.Sprite):
             state_change = True
         if not self.state and (self.rect.colliderect(player.rect) or self.rect.x <= 0):
             game.Game.run = False
-            print ("YOU LOST!!!!!!")
+            game.Game.lost = True
             print (self.state)
         return state_change
          

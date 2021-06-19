@@ -15,7 +15,7 @@ import threading
 class Game:
     field = pygame.Surface((glb.field_width,glb.field_height))
     run = True
-
+    lost = False
     def __init__(self):
         self.frame_delay = 0
         ok,fail=pygame.init()
@@ -117,7 +117,7 @@ class Game:
         while Game.run:
             try:
                 packet = self.sock.recv(500)
-            except socket.timeout:
+            except (socket.timeout, OSError):
                 print("Player left")
                 Game.run = False
                 continue
@@ -127,6 +127,8 @@ class Game:
                 self.handle_data(data)
             elif ptype == net.PackType.block:
                 self.handle_block(data)
+            elif ptype == net.PackType.lost:
+                Game.run = False
             elif ptype == net.PackType.close:
                 Game.run = False
 
@@ -160,7 +162,11 @@ class Game:
         pygame.display.update()
 
     def quit(self):
-        print ("Exiting now")
+        if Game.lost:
+            self.sock.sendto(net.PackType.lost,(self.remote,glb.port))
+            print("YOU LOST!!")
+        else :
+            print("YOU WIN")
         self.sock.sendto(net.PackType.close,(self.remote,glb.port))
         pygame.quit()
         self.sock.close()
