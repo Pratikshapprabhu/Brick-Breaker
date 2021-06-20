@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.rect = pygame.rect.Rect((glb.paddle_x, glb.paddle_y, glb.paddle_width, glb.paddle_height))
         self.vel = [0,0] 
-        self.img = pygame.transform.scale(pygame.transform.rotate(pygame.image.load("assets/paddle.png"),90),(self.rect.width,self.rect.height))
+        self.img = pygame.transform.scale(pygame.image.load("assets/paddle.png"),(self.rect.width,self.rect.height))
 
     def update(self):
         self.rect.move_ip(self.vel[0], self.vel[1])
@@ -67,8 +67,8 @@ class Block(pygame.sprite.Sprite):
     def __init__(self,state,x,y,w,h):
         self.state = state
         self.rect = pygame.rect.Rect(x,y,w,h)
-        self.gsurface = pygame.transform.scale(pygame.transform.rotate(pygame.image.load("assets/green_block.png"),90),(self.rect.width,self.rect.height))
-        self.msurface = pygame.transform.scale(pygame.transform.rotate(pygame.image.load("assets/yellow_block.png"),90),(self.rect.width,self.rect.height))
+        self.gsurface = pygame.transform.scale(pygame.image.load("assets/green_block.png"),(self.rect.width,self.rect.height))
+        self.msurface = pygame.transform.scale(pygame.image.load("assets/yellow_block.png"),(self.rect.width,self.rect.height))
 
     def draw(self):
         if self.state:
