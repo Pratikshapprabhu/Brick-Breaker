@@ -67,8 +67,8 @@ class Block(pygame.sprite.Sprite):
     def __init__(self,state,x,y,w,h):
         self.state = state
         self.rect = pygame.rect.Rect(x,y,w,h)
-        self.gsurface = pygame.transform.scale(pygame.transform.rotate(pygame.image.load("assets/gblock.png"),90),(self.rect.width,self.rect.height))
-        self.msurface = pygame.transform.scale(pygame.transform.rotate(pygame.image.load("assets/mblock.png"),90),(self.rect.width,self.rect.height))
+        self.gsurface = pygame.transform.scale(pygame.transform.rotate(pygame.image.load("assets/green_block.png"),90),(self.rect.width,self.rect.height))
+        self.msurface = pygame.transform.scale(pygame.transform.rotate(pygame.image.load("assets/yellow_block.png"),90),(self.rect.width,self.rect.height))
 
     def draw(self):
         if self.state:
