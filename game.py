@@ -29,7 +29,6 @@ class Game:
         self.opponent = sprite.Opponent() 
         self.ball = sprite.Ball()
         self.oball = sprite.Ball()
-        self.oball.img.fill ((0,0,0))
         self.border.fill((255,255,255))
         self.frame_counter = 10
         self.rthread = threading.Thread(target = self.receive)
