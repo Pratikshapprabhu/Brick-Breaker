@@ -63,13 +63,16 @@ class Game:
     def update(self):
         self.player.update()
         if self.player.rect.colliderect(self.ball.rect):
-           self.ball.x_direction = -self.ball.x_direction   
-           angle = (self.ball.rect.center[1] - self.player.rect.center[1]) / self.player.rect.height
-           try:
-               self.ball.y_direction = int(angle / abs(angle))
-           except ZeroDivisionError:
-               pass
-           self.ball.y_vel = int(abs(angle) * glb.yvel_max * 2)
+            self.ball.x_direction = -self.ball.x_direction   
+            multiplier = 2 * (self.ball.rect.center[1] - self.player.rect.center[1]) / self.player.rect.height
+            #(vmax * mult - (abs(mult) * v) +v
+            y_vel = glb.yvel_max * multiplier + (1 - abs(multiplier)) * self.ball.y_vel * self.ball.y_direction
+            if y_vel > 0:
+                self.ball.y_direction = 1
+            else:
+                self.ball.y_direction = -1
+            self.ball.y_vel = abs(y_vel)
+
         self.ball.update(self.frame_delay)
         area = 0 
         finalrect = None
