@@ -63,7 +63,7 @@ class Game:
     def update(self):
         self.player.update()
         if self.player.rect.colliderect(self.ball.rect):
-            self.ball.x_direction = -self.ball.x_direction   
+            self.ball.x_direction = 1   
             multiplier = 2 * (self.ball.rect.center[1] - self.player.rect.center[1]) / self.player.rect.height
             #(vmax * mult - (abs(mult) * v) +v
             y_vel = glb.yvel_max * multiplier + (1 - abs(multiplier)) * self.ball.y_vel * self.ball.y_direction
