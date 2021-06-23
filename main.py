@@ -1,15 +1,12 @@
 #!/usr/bin/python
+import sys
+import server
 
-# This should be at the to so that pygame hello message will not print
-import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+if len(sys.argv) != 2:
+    print(f"{sys.argv[0]} (-s | -c)")
+elif sys.argv[1] == '-s':
+    server.init()
 
-from game import *
+else:
+    print("client")
 
-game = Game()
-while Game.run:
-    game.handle_events()
-    game.update()
-    game.transmit_data()
-    game.render()
-game.quit()
