@@ -15,7 +15,7 @@ import threading
 class Game:
     field = pygame.Surface((glb.field_width,glb.field_height))
     run = True
-
+    lost = False
     def __init__(self):
         self.frame_delay = 0
         ok,fail=pygame.init()
@@ -29,13 +29,13 @@ class Game:
         self.opponent = sprite.Opponent() 
         self.ball = sprite.Ball()
         self.oball = sprite.Ball()
-        self.oball.img.fill ((0,0,0))
         self.border.fill((255,255,255))
         self.frame_counter = 10
         self.rthread = threading.Thread(target = self.receive)
         
         self.rthread.start()
-        print(f"Initialization passed = {ok} failed = {fail} ")
+        if fail:
+            print(f"Initialization passed = {ok} failed = {fail} ")
 
         for x in range (int(glb.columns/2)):
             for y in range (glb.rows):
@@ -44,7 +44,6 @@ class Game:
         for x in range (int(glb.columns/2), glb.columns):
             for y in range (glb.rows):
                 self.blocks.append(sprite.Block(False, x*glb.block_width, y*glb.block_height, glb.block_width, glb.block_height))
-        print("Successfully Initiated")
 
     def handle_events(self):
         self.frame_delay = self.clock.tick(60)
@@ -64,13 +63,16 @@ class Game:
     def update(self):
         self.player.update()
         if self.player.rect.colliderect(self.ball.rect):
-           self.ball.x_direction = -self.ball.x_direction   
-           angle = (self.ball.rect.center[1] - self.player.rect.center[1]) / self.player.rect.height
-           try:
-               self.ball.y_direction = int(angle / abs(angle))
-           except ZeroDivisionError:
-               pass
-           self.ball.y_vel = int(abs(angle) * glb.yvel_max * 2)
+            self.ball.x_direction = 1   
+            multiplier = 2 * (self.ball.rect.center[1] - self.player.rect.center[1]) / self.player.rect.height
+            #(vmax * mult - (abs(mult) * v) +v
+            y_vel = glb.yvel_max * multiplier + (1 - abs(multiplier)) * self.ball.y_vel * self.ball.y_direction
+            if y_vel > 0:
+                self.ball.y_direction = 1
+            else:
+                self.ball.y_direction = -1
+            self.ball.y_vel = abs(y_vel)
+
         self.ball.update(self.frame_delay)
         area = 0 
         finalrect = None
@@ -117,7 +119,7 @@ class Game:
         while Game.run:
             try:
                 packet = self.sock.recv(500)
-            except socket.timeout:
+            except (socket.timeout, OSError):
                 print("Player left")
                 Game.run = False
                 continue
@@ -127,6 +129,8 @@ class Game:
                 self.handle_data(data)
             elif ptype == net.PackType.block:
                 self.handle_block(data)
+            elif ptype == net.PackType.lost:
+                Game.run = False
             elif ptype == net.PackType.close:
                 Game.run = False
 
@@ -160,7 +164,11 @@ class Game:
         pygame.display.update()
 
     def quit(self):
-        print ("Exiting now")
+        if Game.lost:
+            self.sock.sendto(net.PackType.lost,(self.remote,glb.port))
+            print("YOU LOST!!")
+        else :
+            print("YOU WIN")
         self.sock.sendto(net.PackType.close,(self.remote,glb.port))
         pygame.quit()
         self.sock.close()
