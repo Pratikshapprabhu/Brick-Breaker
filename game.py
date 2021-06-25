@@ -19,7 +19,7 @@ class Game:
     def __init__(self):
         self.frame_delay = 0
         ok,fail=pygame.init()
-        self.sock,self.remote = args.init()
+        #  self.sock,self.remote = args.init()
         self.screen = pygame.display.set_mode()
         self.game_surface = pygame.Surface((glb.game_screen_width,glb.game_screen_height))
         self.border = pygame.Surface((glb.border_width,glb.border_height))
@@ -31,9 +31,9 @@ class Game:
         self.oball = sprite.Ball()
         self.border.fill((255,255,255))
         self.frame_counter = 10
-        self.rthread = threading.Thread(target = self.receive)
+        #  self.rthread = threading.Thread(target = self.receive)
         
-        self.rthread.start()
+        #  self.rthread.start()
         if fail:
             print(f"Initialization passed = {ok} failed = {fail} ")
 
@@ -92,7 +92,7 @@ class Game:
             else :
                 self.ball.y_direction = -self.ball.y_direction
                 self.ball.x_direction = -self.ball.x_direction
-            self.send_bdata()
+            #  self.send_bdata()
 
     def send_bdata(self):
         block_array = [True]*len(self.blocks)
@@ -169,7 +169,7 @@ class Game:
             print("YOU LOST!!")
         else :
             print("YOU WIN")
-        self.sock.sendto(net.PackType.close,(self.remote,glb.port))
+        #  self.sock.sendto(net.PackType.close,(self.remote,glb.port))
         pygame.quit()
-        self.sock.close()
+        #  self.sock.close()
         self.rthread.join()
