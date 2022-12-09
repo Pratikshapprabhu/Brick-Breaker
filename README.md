@@ -3,4 +3,4 @@ Board  game in  Python’s  Pygame framework. It’s a real time multiplayer gam
 
 ### Usage
 To run as a server `python main.py -s`
-To run as a server `python main.py -c <ip address of server>
+To run as a server `python main.py -c <ip address of server>`
